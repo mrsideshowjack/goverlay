@@ -32,7 +32,11 @@ app.use(cors({
 
 var router = express.Router();
 
-app.use(express.static(path.join(__dirname, '/')))
+if (env == 'local') {
+    app.use(express.static(path.join(__dirname, '/')));
+} else {
+    app.use(express.static(path.join(__dirname, '/build/es6-unbundled')));
+}
 
 // Prefix for all routes
 app.use('/api', router);
