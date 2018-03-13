@@ -1,5 +1,5 @@
 {
-  "name": "polymer-starter-kit",
+  "name": "goverlay",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "eslint": "^3.19.0",
@@ -11,5 +11,23 @@
     "lint:javascript": "eslint . --ext js,html --ignore-path .gitignore",
     "test": "polymer test",
     "test:integration": "polymer build # test that psk builds without error with the CLI"
+  },
+  "description": "[![Build Status](https://travis-ci.org/Polymer/polymer-starter-kit.svg?branch=master)](https://travis-ci.org/Polymer/polymer-starter-kit)",
+  "version": "1.0.0",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrsideshowjack/goverlay.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/mrsideshowjack/goverlay/issues"
+  },
+  "homepage": "https://github.com/mrsideshowjack/goverlay#readme",
+  "dependencies": {
+    "express": "^4.16.3"
   }
 }
