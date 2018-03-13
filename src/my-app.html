@@ -18,6 +18,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
@@ -88,6 +90,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         height: 100%;
         position: fixed;
       }
+      #overlayList{
+        overflow-y: auto;
+        height: calc(100vh - 64px);
+      }
+      #overlayCard{
+        --paper-card-header-color: #fff;
+        margin: 1rem;
+      }
     </style>
 
     <app-location
@@ -102,42 +112,58 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         tail="{{subroute}}">
     </app-route>
 
+    
+    <iron-ajax
+       auto
+       id="overlayAjax"
+       url="/api"
+       handle-as="json"
+       last-response="{{overlays}}"></iron-ajax>
+    
+
     <app-drawer-layout fullbleed narrow="{{narrow}}">
       <!-- Drawer content -->
       <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
-        <app-toolbar>Menu
+        <app-toolbar>goverlay
           <paper-fab label="+" on-tap="openNewOverlay"></paper-fab>
         </app-toolbar>
+        <section id="overlayList">
         <template is="dom-repeat" items="[[overlays]]">
-          <paper-card heading="[[item.name]]" image="http://puu.sh/zGhnF/f16b3afdef.jpg" elevation="1" animated-shadow="false">
+          <paper-card heading="[[item.name]]" id="overlayCard" image="http://puu.sh/zGhnF/f16b3afdef.jpg" elevation="1" animated-shadow="false">
             <div class="card-content">
-              <p>Latitude: [[item.lat]]</p>
-              <p>Longtitude: [[item.lng]]</p>
-              <p>Heading: [[item.hdg]]</p>
+              <p>Latitude: <br> [[item.lat]]</p>
+              <p>Longtitude: <br> [[item.lng]]</p>
+              <p>Heading: <br> [[item.hdg]]</p>
             </div>
             <div class="card-actions">
-              
+              <paper-button item$='{{item}}' on-tap="_selectOverlay">View</paper-button>
             </div>
           </paper-card>
         </template>
+        </section>
       </app-drawer>
 
       <!-- Main content -->
       <app-header-layout has-scrolling-region>
 
         <google-map fit-to-marker api-key="AIzaSyAxg32wQzCSCxNCXIZXMg8ZcLQ_WA0WPm8"
-                    map-type="satellite">
+                    map-type="satellite"
+                    id="map"
+                    zoom="{{zoom}}"
+                    latitude="{{selectedOverlay.lat}}"
+                    longitude="{{selectedOverlay.lng}}">
 
         </google-map>
         <paper-dialog id="newOverlayDialog">
           <h2>New Overlay {{newOverlay.name}}</h2>
-          <iron-form id="newOverlayForm">
-          <form>
-            <vaadin-upload max-files="1" files="{{newOverlay.files}}"></vaadin-upload>
-            <paper-input required label="Name" value="{{newOverlay.name}}"></paper-input>
-            <paper-input required label="Latittude" value="{{newOverlay.lat}}"></paper-input>
-            <paper-input required label="Longittude" value="{{newOverlay.lng}}"></paper-input>
-            <paper-input required label="Heading" value="{{newOverlay.hdg}}"></paper-input>
+          <iron-form id="newOverlayForm" on-iron-form-response="ajaxRefresh">
+          <form method="POST" action="/api">
+            <!-- <vaadin-upload disabled max-files="1" files="{{newOverlay.files}}"></vaadin-upload> -->
+            <paper-input required label="Video URL" name="videoURL"></paper-input>
+            <paper-input required label="Name" name="name"></paper-input>
+            <paper-input required label="Latitude" name="lat"></paper-input>
+            <paper-input required label="Longitude" name="lng"></paper-input>
+            <paper-input required label="Heading" name="hdg"></paper-input>
           </form>
           </iron-form>
           <div class="buttons">
@@ -169,9 +195,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // This shouldn't be neccessary, but the Analyzer isn't picking up
           // Polymer.Element#rootPath
           rootPath: String,
-          newOverlay: {
+          zoom: Number,
+          selectedOverlay: {
             type: Object,
-            notify: true
+            notify: true,
+            value: {
+              name: 'overlay 2',
+              lat: 50.900202990685784,
+              lng: -0.9297653110717192,
+              hdg: 324,
+              videoURL: 'https://www.videvo.net/videvo_files/converted/2016_01/preview/Forest_15_3b_Videvo.mov47209.webm'
+            }
           },
           overlays: {
             type: Object
@@ -188,8 +222,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.newOverlayDialog.open();
       }
       addNewOverlay(newOverlay){
-        console.log(this.newOverlay);
-        console.log(this.overlays);
+        this.$.newOverlayForm.submit();
+      }
+      ajaxRefresh(){
+        this.$.overlayAjax.generateRequest();
+      }
+      _selectOverlay(e){
+        this.selectedOverlay = JSON.parse(e.target.getAttribute('item'));
+        // var item = JSON.parse(e.target.getAttribute('item')),
+        //     map = this.$.map;
+        // console.log(item);
+        // map.latitude = item.lat;
+        // map.longitude = item.lng;
+        this.zoom = 17;     
         
       }
       _routePageChanged(page) {

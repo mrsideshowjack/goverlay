@@ -1,5 +1,7 @@
 const path = require('path');
 const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 const env = process.env.ENV || 'local';
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || 'localhost';
@@ -13,15 +15,16 @@ var app = express();
 //------------------------------------------------------------------------------
 
 // // Allows parsing of req.body
-// app.use(bodyParser.text({
-//     type: 'text/plain'
-// }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // // Sanitise inputs (req.body, req.query and req.params)
 // app.use(mongoSanitize());
 
 // // Allow cross-origin HTTP requests
-// app.use(cors());
+app.use(cors({
+    origin: '*'
+}));
 
 //------------------------------------------------------------------------------
 // Express Setup
@@ -29,7 +32,7 @@ var app = express();
 
 var router = express.Router();
 
-app.use('/', express.static(path.join(__dirname, './')));
+app.use(express.static(path.join(__dirname, '/')))
 
 // Prefix for all routes
 app.use('/api', router);
@@ -53,13 +56,15 @@ db = [{
         name: 'overlay 1',
         lat: 50.900202990685784,
         lng: -0.9297653110717192,
-        hdg: 324
+        hdg: 324,
+        videoURL: 'https://www.videvo.net/videvo_files/converted/2016_01/preview/Forest_15_3b_Videvo.mov47209.webm'
     },
     {
         name: 'overlay 2',
-        lat: 50.900202990685784,
+        lat: 50.925202990685784,
         lng: -0.9297653110717192,
-        hdg: 324
+        hdg: 324,
+        videoURL: 'https://www.videvo.net/videvo_files/converted/2016_01/preview/Forest_15_3b_Videvo.mov47209.webm'
     }
 ]
 
@@ -78,11 +83,13 @@ router.use(function (req, res, next) {
 });
 
 router.get('', (req, res) => {
-    res.send(db);
+    res.json(db);
 });
 
 router.post('', (req, res) => {
-    res.send('kappa');
+    console.log(req.body);    
+    db.push(req.body);
+    res.send('OK');
 });
 
 // Do this after all requests

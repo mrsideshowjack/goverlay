@@ -7,6 +7,7 @@
     "eslint-plugin-html": "^2.0.0"
   },
   "scripts": {
+    "start": "node app.js",
     "lint": "npm run lint:javascript && polymer lint",
     "lint:javascript": "eslint . --ext js,html --ignore-path .gitignore",
     "test": "polymer test",
@@ -28,6 +29,8 @@
   },
   "homepage": "https://github.com/mrsideshowjack/goverlay#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
     "express": "^4.16.3"
   }
 }
