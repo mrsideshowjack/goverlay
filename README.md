@@ -15,7 +15,7 @@ First, install the tools
 
 Second, install [Bower](https://bower.io/) using [npm](https://www.npmjs.com)
 
-    bower isntall
+    bower install
     npm install 
 
 ### Start the development server
