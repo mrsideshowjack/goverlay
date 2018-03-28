@@ -61,14 +61,14 @@ db = [{
         lat: 50.900202990685784,
         lng: -0.9297653110717192,
         hdg: 324,
-        videoURL: 'https://www.videvo.net/videvo_files/converted/2016_01/preview/Forest_15_3b_Videvo.mov47209.webm'
+        videoURL: 'https://i.ytimg.com/vi/5Nj2BngIko0/maxresdefault.jpg'
     },
     {
         name: 'overlay 2',
         lat: 50.925202990685784,
         lng: -0.9297653110717192,
         hdg: 324,
-        videoURL: 'https://www.videvo.net/videvo_files/converted/2016_01/preview/Forest_15_3b_Videvo.mov47209.webm'
+        videoURL: 'https://i.ytimg.com/vi/5Nj2BngIko0/maxresdefault.jpg'
     }
 ]
 
@@ -91,8 +91,12 @@ router.get('', (req, res) => {
 });
 
 router.post('', (req, res) => {
-    console.log(req.body);    
     db.push(req.body);
+    res.send('OK');
+});
+
+router.delete('', (req, res) => {
+    delete db[req.query.id];
     res.send('OK');
 });
 

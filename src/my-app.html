@@ -31,9 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/google-map/google-map-marker.html">
 <link rel="import" href="../bower_components/vaadin-upload/vaadin-upload.html">
 
-
-
-
+<link rel="import" href="goverlay-overlay.html">
 <link rel="import" href="my-icons.html">
 
 <link rel="lazy-import" href="my-view1.html">
@@ -115,10 +113,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     
     <iron-ajax
        auto
-       id="overlayAjax"
+       id="getOverlayAjax"
        url="/api"
        handle-as="json"
        last-response="{{overlays}}"></iron-ajax>
+    <iron-ajax
+       id="delOverlayAjax"
+       url="/api"
+       method="delete"
+       handle-as="json"
+       on-response="ajaxRefresh"></iron-ajax>
     
 
     <app-drawer-layout fullbleed narrow="{{narrow}}">
@@ -128,7 +132,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-fab label="+" on-tap="openNewOverlay"></paper-fab>
         </app-toolbar>
         <section id="overlayList">
-        <template is="dom-repeat" items="[[overlays]]">
+        <template is="dom-repeat" items="{{overlays}}">
+          <template is="dom-if" if="{{item.name}}">
           <paper-card heading="[[item.name]]" id="overlayCard" image="http://puu.sh/zGhnF/f16b3afdef.jpg" elevation="1" animated-shadow="false">
             <div class="card-content">
               <p>Latitude: <br> [[item.lat]]</p>
@@ -136,23 +141,29 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <p>Heading: <br> [[item.hdg]]</p>
             </div>
             <div class="card-actions">
-              <paper-button item$='{{item}}' on-tap="_selectOverlay">View</paper-button>
+              <paper-button item$='{{item}}' index$='{{index}}' on-tap="_deleteOverlay">Delete</paper-button>
+              <paper-button item$='{{item}}' on-tap="_selectOverlay" style="color: white; background-color: #ff4081;">View</paper-button>
             </div>
           </paper-card>
+          </template>
         </template>
         </section>
       </app-drawer>
 
       <!-- Main content -->
       <app-header-layout has-scrolling-region>
-
         <google-map fit-to-marker api-key="AIzaSyAxg32wQzCSCxNCXIZXMg8ZcLQ_WA0WPm8"
-                    map-type="satellite"
-                    id="map"
-                    zoom="{{zoom}}"
-                    latitude="{{selectedOverlay.lat}}"
-                    longitude="{{selectedOverlay.lng}}">
-
+        map-type="satellite"
+        id="map"
+        zoom="{{zoom}}"
+        latitude="62.281819"
+        longitude="-150.287132">
+            <!-- <template is="dom-repeat" items="[[overlays]]">
+            <goverlay-overlay latitude="{{item.lat}}" longitude="{{item.lng}}" video-url="{{item.videoURL}}"></goverlay-overlay>
+            </template> -->
+            <goverlay-overlay id="overlay">
+              <img class="image" src="https://i.ytimg.com/vi/5Nj2BngIko0/maxresdefault.jpg"></img>
+            </goverlay-overlay>
         </google-map>
         <paper-dialog id="newOverlayDialog">
           <h2>New Overlay {{newOverlay.name}}</h2>
@@ -196,17 +207,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           // Polymer.Element#rootPath
           rootPath: String,
           zoom: Number,
-          selectedOverlay: {
-            type: Object,
-            notify: true,
-            value: {
-              name: 'overlay 2',
-              lat: 50.900202990685784,
-              lng: -0.9297653110717192,
-              hdg: 324,
-              videoURL: 'https://www.videvo.net/videvo_files/converted/2016_01/preview/Forest_15_3b_Videvo.mov47209.webm'
-            }
-          },
           overlays: {
             type: Object
           },
@@ -225,17 +225,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.$.newOverlayForm.submit();
       }
       ajaxRefresh(){
-        this.$.overlayAjax.generateRequest();
+        this.$.getOverlayAjax.generateRequest();
       }
       _selectOverlay(e){
-        this.selectedOverlay = JSON.parse(e.target.getAttribute('item'));
-        // var item = JSON.parse(e.target.getAttribute('item')),
-        //     map = this.$.map;
-        // console.log(item);
-        // map.latitude = item.lat;
-        // map.longitude = item.lng;
+        var item = JSON.parse(e.target.getAttribute('item')),
+            map = this.$.map;
+        this.selectedOverlay = item;
+        console.log(item);
+        map.latitude = item.lat;
+        map.longitude = item.lng;
         this.zoom = 17;     
         
+      }
+      _deleteOverlay(e){
+        let item = JSON.parse(e.target.getAttribute('item')),
+            index = JSON.parse(e.target.getAttribute('index')),
+            id = { id: index };
+        console.log(index);
+        
+        this.$.delOverlayAjax.params = id;
+        this.$.delOverlayAjax.generateRequest();
       }
       _routePageChanged(page) {
         // If no page was found in the route data, page will be an empty string.

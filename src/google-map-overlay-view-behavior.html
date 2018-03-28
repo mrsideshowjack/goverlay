@@ -1,0 +1,41 @@
+<script>
+    GoogleMapOverlayViewBehavior = {
+        properties: {
+            map: {
+                type: Object,
+                observer: '_mapChanged'
+            }
+        },
+        _mapReady: function () {
+            this._initOverlay();
+        },
+        _initOverlay: function () {
+                this._overlayView.prototype = new google.maps.OverlayView();
+                this._overlayView.prototype.onAdd = this.onAdd.bind(this);
+                this._overlayView.prototype.draw = this.draw.bind(this);
+                this._overlayView.prototype.onRemove = this.onRemove.bind(this);
+                this.overlay = new this._overlayView(this.map);
+        },
+        _overlayView: function (map) {
+            if (map && map instanceof google.maps.Map) {
+                this.map = map;
+            }
+        },
+        _mapChanged: function (map) {
+            this._initOverlay();
+            map =  document.querySelector('google-map');
+            if (this.overlay && this.overlay instanceof google.maps.OverlayView) {
+                this.overlay.setMap(map);
+            }
+        },
+        onAdd: function () { 
+            console.log('onAdd');
+         },
+        draw: function () { 
+            console.log('draw');
+         },
+        onRemove: function () { 
+            console.log('onRemove');
+         }
+    };
+</script>
